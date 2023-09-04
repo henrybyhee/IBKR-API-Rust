@@ -1994,10 +1994,6 @@ where
         }
 
         if self.server_version() >= MIN_SERVER_VER_AUTO_CANCEL_PARENT {
-            println!(
-                "place_order sending auto_cancel_parent: {}",
-                order.auto_cancel_parent
-            );
             msg.push_str(&make_field(&order.auto_cancel_parent)?);
         }
 

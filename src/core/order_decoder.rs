@@ -196,10 +196,6 @@ impl<'a> OrderDecoder<'a> {
         self.decode_post_to_ats(fields_iter)?;
         if self.server_version >= MIN_SERVER_VER_AUTO_CANCEL_PARENT {
             self.decode_auto_cancel_parent(fields_iter)?;
-            println!(
-                "Decoding auto_cancel of completed order: {}",
-                self.order.auto_cancel_parent
-            );
         }
 
         Ok(())
