@@ -7,6 +7,8 @@ use serde::{Deserialize, Serialize};
 
 use crate::core::common::TagValue;
 
+use super::common::UNSET_DOUBLE;
+
 //==================================================================================================
 #[repr(i32)]
 #[derive(Serialize, Deserialize, Clone, Copy, FromPrimitive, Debug)]
@@ -250,7 +252,7 @@ impl Display for Contract {
 }
 
 //==================================================================================================
-#[derive(Serialize, Deserialize, Clone, Debug, Default)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct ContractDetails {
     pub contract: Contract,
     pub market_name: String,
@@ -269,7 +271,7 @@ pub struct ContractDetails {
     pub liquid_hours: String,
     pub ev_rule: String,
     pub ev_multiplier: f64,
-    pub md_size_multiplier: i32,
+    // pub md_size_multiplier: i32,
     pub agg_group: i32,
     pub under_symbol: String,
     pub under_sec_type: String,
@@ -278,6 +280,9 @@ pub struct ContractDetails {
     pub real_expiration_date: String,
     pub last_trade_time: String,
     pub stock_type: String,
+    pub min_size: f64,
+    pub size_increment: f64,
+    pub suggested_size_increment: f64,
 
     // BOND values
     pub cusip: String,
@@ -316,7 +321,6 @@ impl ContractDetails {
         liquid_hours: String,
         ev_rule: String,
         ev_multiplier: f64,
-        md_size_multiplier: i32,
         agg_group: i32,
         under_symbol: String,
         under_sec_type: String,
@@ -325,6 +329,9 @@ impl ContractDetails {
         real_expiration_date: String,
         last_trade_time: String,
         stock_type: String,
+        min_size: f64,
+        size_increment: f64,
+        suggested_size_increment: f64,
         cusip: String,
         ratings: String,
         desc_append: String,
@@ -359,7 +366,6 @@ impl ContractDetails {
             liquid_hours,
             ev_rule,
             ev_multiplier,
-            md_size_multiplier,
             agg_group,
             under_symbol,
             under_sec_type,
@@ -368,6 +374,9 @@ impl ContractDetails {
             real_expiration_date,
             last_trade_time,
             stock_type,
+            min_size,
+            size_increment,
+            suggested_size_increment,
             cusip,
             ratings,
             desc_append,
@@ -408,7 +417,6 @@ impl Display for ContractDetails {
             liquid_hours: {},
             ev_rule: {},
             ev_multiplier: {},
-            md_size_multiplier: {},
             agg_group: {},
             under_symbol: {},
             under_sec_type: {},
@@ -416,6 +424,7 @@ impl Display for ContractDetails {
             sec_id_list: {},
             real_expiration_date: {},
             last_trade_time: {},
+            stock_type: {},
             cusip: {},
             ratings: {},
             desc_append: {},
@@ -430,7 +439,10 @@ impl Display for ContractDetails {
             next_option_date: {},
             next_option_type: {},
             next_option_partial: {},
-            notes: {},",
+            notes: {},
+            min_size: {},
+            size_increment: {},
+            suggested_size_increment: {}",
             self.contract,
             self.market_name,
             self.min_tick,
@@ -448,7 +460,6 @@ impl Display for ContractDetails {
             self.liquid_hours,
             self.ev_rule,
             self.ev_multiplier,
-            self.md_size_multiplier,
             self.agg_group,
             self.under_symbol,
             self.under_sec_type,
@@ -460,6 +471,7 @@ impl Display for ContractDetails {
                 .join(","),
             self.real_expiration_date,
             self.last_trade_time,
+            self.stock_type,
             self.cusip,
             self.ratings,
             self.desc_append,
@@ -474,8 +486,62 @@ impl Display for ContractDetails {
             self.next_option_date,
             self.next_option_type,
             self.next_option_partial,
-            self.notes
+            self.notes,
+            self.min_size,
+            self.size_increment,
+            self.suggested_size_increment
         )
+    }
+}
+
+impl Default for ContractDetails {
+    fn default() -> Self {
+        Self {
+            contract: Contract::default(),
+            market_name: "".to_string(),
+            min_tick: 0.,
+            order_types: "".to_string(),
+            valid_exchanges: "".to_string(),
+            price_magnifier: 0,
+            under_con_id: 0,
+            long_name: "".to_string(),
+            contract_month: "".to_string(),
+            industry: "".to_string(),
+            category: "".to_string(),
+            subcategory: "".to_string(),
+            time_zone_id: "".to_string(),
+            trading_hours: "".to_string(),
+            liquid_hours: "".to_string(),
+            ev_rule: "".to_string(),
+            ev_multiplier: 0.,
+            agg_group: 0,
+            under_symbol: "".to_string(),
+            under_sec_type: "".to_string(),
+            market_rule_ids: "".to_string(),
+            sec_id_list: vec![],
+            real_expiration_date: "".to_string(),
+            last_trade_time: "".to_string(),
+            stock_type: "".to_string(),
+            min_size: UNSET_DOUBLE,
+            size_increment: UNSET_DOUBLE,
+            suggested_size_increment: UNSET_DOUBLE,
+            // BOND values
+            cusip: "".to_string(),
+            ratings: "".to_string(),
+            desc_append: "".to_string(),
+            bond_type: "".to_string(),
+            coupon_type: "".to_string(),
+            callable: false,
+            putable: false,
+            coupon: 0.,
+            convertible: false,
+            maturity: "".to_string(),
+            issue_date: "".to_string(),
+            next_option_date: "".to_string(),
+            next_option_type: "".to_string(),
+            next_option_partial: false,
+            notes: "".to_string(),
+        }
     }
 }
 

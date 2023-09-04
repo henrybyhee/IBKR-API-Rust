@@ -20,7 +20,7 @@ use crate::core::server_versions::{
     MIN_SERVER_VER_WHAT_IF_EXT_FIELDS,
 };
 
-use super::server_versions::MIN_SERVER_VER_DURATION;
+use super::server_versions::{MIN_SERVER_VER_AUTO_CANCEL_PARENT, MIN_SERVER_VER_DURATION};
 
 //==================================================================================================
 pub struct OrderDecoder<'a> {
@@ -194,6 +194,13 @@ impl<'a> OrderDecoder<'a> {
         self.decode_use_price_mgmt_algo(fields_iter)?;
         self.decode_duration(fields_iter)?;
         self.decode_post_to_ats(fields_iter)?;
+        if self.server_version >= MIN_SERVER_VER_AUTO_CANCEL_PARENT {
+            self.decode_auto_cancel_parent(fields_iter)?;
+            println!(
+                "Decoding auto_cancel of completed order: {}",
+                self.order.auto_cancel_parent
+            );
+        }
 
         Ok(())
     }

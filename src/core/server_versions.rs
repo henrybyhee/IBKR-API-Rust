@@ -102,9 +102,12 @@ pub const MIN_SERVER_VER_DURATION: i32 = 158;
 pub const MIN_SERVER_VER_MARKET_DATA_IN_SHARES: i32 = 159;
 pub const MIN_SERVER_VER_POST_TO_ATS: i32 = 160;
 pub const MIN_SERVER_VER_WSHE_CALENDAR: i32 = 161;
+pub const MIN_SERVER_VER_AUTO_CANCEL_PARENT: i32 = 162;
+pub const MIN_SERVER_VER_FRACTIONAL_SIZE_SUPPORT: i32 = 163;
+pub const MIN_SERVER_VER_SIZE_RULES: i32 = 164;
 
 // 100+ messaging */
 // 100 = enhanced handshake, msg length prefixes
 
 pub const MIN_CLIENT_VER: i32 = 100;
-pub const MAX_CLIENT_VER: i32 = MIN_SERVER_VER_WSHE_CALENDAR;
+pub const MAX_CLIENT_VER: i32 = MIN_SERVER_VER_SIZE_RULES;

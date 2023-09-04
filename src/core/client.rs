@@ -1551,7 +1551,20 @@ where
                 format!(
                     "{}{}",
                     TwsError::UpdateTws.message(),
-                    "   It does not support postToAts attribute"
+                    " It does not support postToAts attribute"
+                ),
+            ));
+            return Err(err);
+        }
+
+        if self.server_version() < MIN_SERVER_VER_AUTO_CANCEL_PARENT && order.auto_cancel_parent {
+            let err = IBKRApiLibError::ApiError(TwsApiReportableError::new(
+                order_id,
+                TwsError::UpdateTws.code().to_string(),
+                format!(
+                    "{}{}",
+                    TwsError::UpdateTws.message(),
+                    " It does not support auto_cancel_parent attribute"
                 ),
             ));
             return Err(err);
@@ -1978,6 +1991,14 @@ where
 
         if self.server_version() >= MIN_SERVER_VER_POST_TO_ATS {
             msg.push_str(&make_field(&order.post_to_ats)?);
+        }
+
+        if self.server_version() >= MIN_SERVER_VER_AUTO_CANCEL_PARENT {
+            println!(
+                "place_order sending auto_cancel_parent: {}",
+                order.auto_cancel_parent
+            );
+            msg.push_str(&make_field(&order.auto_cancel_parent)?);
         }
 
         self.send_request(msg.as_str())?;

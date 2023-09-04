@@ -30,7 +30,8 @@ use crate::core::order::{Order, OrderState, SoftDollarTier};
 use crate::core::order_decoder::OrderDecoder;
 use crate::core::scanner::ScanData;
 use crate::core::server_versions::{
-    MIN_SERVER_VER_AGG_GROUP, MIN_SERVER_VER_FRACTIONAL_POSITIONS, MIN_SERVER_VER_LAST_LIQUIDITY,
+    MIN_SERVER_VER_AGG_GROUP, MIN_SERVER_VER_FRACTIONAL_POSITIONS,
+    MIN_SERVER_VER_FRACTIONAL_SIZE_SUPPORT, MIN_SERVER_VER_LAST_LIQUIDITY,
     MIN_SERVER_VER_MARKET_CAP_PRICE, MIN_SERVER_VER_MARKET_RULES,
     MIN_SERVER_VER_MD_SIZE_MULTIPLIER, MIN_SERVER_VER_MODELS_SUPPORT,
     MIN_SERVER_VER_ORDER_CONTAINER, MIN_SERVER_VER_PAST_LIMIT, MIN_SERVER_VER_PRE_OPEN_BID_ASK,
@@ -41,7 +42,9 @@ use crate::core::server_versions::{
 };
 use crate::core::wrapper::Wrapper;
 
-use super::server_versions::{MIN_SERVER_VER_PRICE_BASED_VOLATILITY, MIN_SERVER_VER_STOCK_TYPE};
+use super::server_versions::{
+    MIN_SERVER_VER_PRICE_BASED_VOLATILITY, MIN_SERVER_VER_SIZE_RULES, MIN_SERVER_VER_STOCK_TYPE,
+};
 
 const WRAPPER_POISONED_MUTEX: &str = "Wrapper mutex was poisoned";
 //==================================================================================================
@@ -505,7 +508,10 @@ where
         //throw away message_id
         fields_itr.next();
 
-        let version: i32 = decode_i32(&mut fields_itr)?;
+        let mut version = 6;
+        if self.server_version < MIN_SERVER_VER_SIZE_RULES {
+            version = decode_i32(&mut fields_itr)?;
+        }
 
         let mut req_id = -1;
         if version >= 3 {
@@ -533,8 +539,10 @@ where
         contract.contract.trading_class = decode_string(&mut fields_itr)?;
         contract.contract.con_id = decode_i32(&mut fields_itr)?;
         contract.min_tick = decode_f64(&mut fields_itr)?;
-        if self.server_version >= MIN_SERVER_VER_MD_SIZE_MULTIPLIER {
-            contract.md_size_multiplier = decode_i32(&mut fields_itr)?;
+        if self.server_version >= MIN_SERVER_VER_MD_SIZE_MULTIPLIER
+            && self.server_version < MIN_SERVER_VER_SIZE_RULES
+        {
+            decode_i32(&mut fields_itr)?;
         }
         contract.order_types = decode_string(&mut fields_itr)?;
         contract.valid_exchanges = decode_string(&mut fields_itr)?;
@@ -568,6 +576,11 @@ where
         }
         if self.server_version >= MIN_SERVER_VER_MARKET_RULES {
             contract.market_rule_ids = decode_string(&mut fields_itr)?;
+        }
+        if self.server_version >= MIN_SERVER_VER_SIZE_RULES {
+            contract.min_size = decode_f64(&mut fields_itr)?;
+            contract.size_increment = decode_f64(&mut fields_itr)?;
+            contract.suggested_size_increment = decode_f64(&mut fields_itr)?;
         }
 
         self.wrapper
@@ -651,7 +664,10 @@ where
         //throw away message_id
         fields_itr.next();
 
-        let version: i32 = decode_i32(&mut fields_itr)?;
+        let mut version = 8;
+        if self.server_version < MIN_SERVER_VER_SIZE_RULES {
+            version = decode_i32(&mut fields_itr)?;
+        }
 
         let mut req_id = -1;
         if version >= 3 {
@@ -672,8 +688,10 @@ where
         contract.contract.trading_class = decode_string(&mut fields_itr)?;
         contract.contract.con_id = decode_i32(&mut fields_itr)?;
         contract.min_tick = decode_f64(&mut fields_itr)?;
-        if self.server_version >= MIN_SERVER_VER_MD_SIZE_MULTIPLIER {
-            contract.md_size_multiplier = decode_i32(&mut fields_itr)?;
+        if self.server_version >= MIN_SERVER_VER_MD_SIZE_MULTIPLIER
+            && self.server_version < MIN_SERVER_VER_SIZE_RULES
+        {
+            decode_i32(&mut fields_itr)?; // md_size_multiplier - not used anymore
         }
         contract.contract.multiplier = decode_string(&mut fields_itr)?;
         contract.order_types = decode_string(&mut fields_itr)?;
@@ -731,6 +749,18 @@ where
 
         if self.server_version >= MIN_SERVER_VER_STOCK_TYPE {
             contract.stock_type = decode_string(&mut fields_itr)?;
+        }
+
+        if self.server_version >= MIN_SERVER_VER_FRACTIONAL_SIZE_SUPPORT
+            && self.server_version < MIN_SERVER_VER_SIZE_RULES
+        {
+            decode_f64(&mut fields_itr)?; // sizeMinTick - not used anymore
+        }
+
+        if self.server_version >= MIN_SERVER_VER_SIZE_RULES {
+            contract.min_size = decode_f64(&mut fields_itr)?;
+            contract.size_increment = decode_f64(&mut fields_itr)?;
+            contract.suggested_size_increment = decode_f64(&mut fields_itr)?;
         }
 
         self.wrapper
